@@ -45,6 +45,14 @@ const projectsData = [
     startdate: '4-2023',
     description: 'Command-line interface role-playing game. Group project.',
     skills: ['Python', 'OOP', 'Teamwork']
+  },
+  {
+    id: 6,
+    title: 'SQL course',
+    link: 'https://github.com/niqdevgit/SQLtuniCourse',
+    startdate: '8-2024',
+    description: 'SQL commands from Tampere University course.',
+    skills: ['SQL', 'ER-model', 'SQLite']
   }
 ];
 
