@@ -106,6 +106,8 @@ const App = () => {
       <br></br>
       <span><a href='https://niqdevgit.github.io/blog'>View my blog</a></span>
       <br></br>
+      <span><a href='https://github.com/niqdevgit/'>GitHub profile</a></span>
+      <br></br>
       <span>Here are my personal or school projects. <br></br>
        My professional works are not included here. <br></br>
        Click any title to view project site.</span>
