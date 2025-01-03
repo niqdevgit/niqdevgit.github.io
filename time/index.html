@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seconds Counter</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #counter {
+            font-size: 2rem;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+    <div id="counter">Loading...</div>
+
+    <script>
+        const targetDate = new Date('2074-05-29T00:00:00Z').getTime();
+
+        function formatNumberWithSpaces(number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        }
+
+        function updateCounter() {
+            const now = Date.now();
+            const seconds = Math.floor((targetDate - now) / 1000);
+            document.getElementById('counter').textContent = formatNumberWithSpaces(seconds);
+        }
+
+        updateCounter();
+        setInterval(updateCounter, 1000);
+    </script>
+</body>
+</html>
