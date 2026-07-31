@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla Roadtrip 2026: Latausdata ja reittianalyysi</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary: #2C3E50;
+            --accent: #E74C3C;
+            --bg: #F4F6F8;
+            --text: #2c3e50;
+            --border: #E2E8F0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text);
+            background-color: var(--bg);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2.5rem;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 12px;
+        }
+        h1, h2 {
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.2rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: #f8fafc;
+            padding: 1.5rem 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .stat-card .value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .content-section {
+            margin-bottom: 3rem;
+        }
+        #map {
+            height: 450px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+            z-index: 1;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 0 0 1px var(--border);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            min-width: 600px;
+        }
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f8fafc;
+        }
+        tr:last-child {
+            font-weight: 700;
+            background-color: #f1f5f9;
+        }
+        .note {
+            background-color: #f0f9ff;
+            border-left: 4px solid #38bdf8;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Road trip 2026: Latausdata ja reittianalyysi</h1>
+
+        <div class="content-section">
+            <p>Tämä raportti kokoaa yhteen roadtripin latausdatan ja tilastot. Matkanteko 2019 Tesla Model 3:lla tarjoaa erinomaisen reaalimaailman datapohjan tarkastella sähköautoilun kustannuksia pitkällä reitillä Suomessa.</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="value">1 525 km</span>
+                    <span class="label">Kokonaisetäisyys</span>
+                </div>
+                <div class="stat-card">
+                    <span class="value">159,3 Wh/km</span>
+                    <span class="label">Keskikulutus</span>
+                </div>
+                <div class="stat-card">
+                    <span class="value">242,9 kWh</span>
+                    <span class="label">Energia yhteensä</span>
+                </div>
+                <div class="stat-card">
+                    <span class="value">23h 18min</span>
+                    <span class="label">Ajoaika</span>
+                </div>
+                <div class="stat-card">
+                    <span class="value">101,85 €</span>
+                    <span class="label">Latauskulut</span>
+                </div>
+            </div>
+
+            <div class="note">
+                Auton Camp Mode vei noin 30–40 % akkua per yö
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Reittikartta</h2>
+            <div id="map"></div>
+            <p style="font-size: 0.85rem; color: #64748b;">Kartalle on merkitty reitin keskeiset latauspisteet ja ajoreitti Turusta alkaen, kiertäen rannikon ja Itä-Suomen kautta takaisin Turkuun.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>Lataushistoria</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sijainti</th>
+                            <th>Latausverkosto / Sovellus</th>
+                            <th>Ladattu taso (%)</th>
+                            <th>Hinta (€)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Turku (Lähtö)</td><td>Kotilataus</td><td>85%</td><td>-</td></tr>
+                        <tr><td>Pori</td><td>Supercharger (Puuvilla)</td><td>90%</td><td>13,29 €</td></tr>
+                        <tr><td>Yyteri</td><td>eParking (Camping)</td><td>40%</td><td>0,66 €</td></tr>
+                        <tr><td>Pori</td><td>Supercharger (Puuvilla)</td><td>94%</td><td>8,91 €</td></tr>
+                        <tr><td>Vaasa</td><td>Supercharger</td><td>78%</td><td>7,28 €</td></tr>
+                        <tr><td>Seinäjoki</td><td>K-Lataus</td><td>99%</td><td>9,97 €</td></tr>
+                        <tr><td>Tuuri</td><td>Monta charge</td><td>82%</td><td>4,07 €</td></tr>
+                        <tr><td>Keuruu</td><td>K-Lataus</td><td>86%</td><td>6,47 €</td></tr>
+                        <tr><td>Jyväskylä</td><td>eParking</td><td>95%</td><td>4,77 €</td></tr>
+                        <tr><td>Mikkeli</td><td>Supercharger</td><td>90%</td><td>7,36 €</td></tr>
+                        <tr><td>Mikkeli</td><td>ABC-lataus</td><td>95%</td><td>9,96 €</td></tr>
+                        <tr><td>Kouvola</td><td>Virta</td><td>99%</td><td>13,21 €</td></tr>
+                        <tr><td>Helsinki</td><td>eParking</td><td>66%</td><td>2,71 €</td></tr>
+                        <tr><td>Espoo</td><td>Supercharger</td><td>99%</td><td>13,19 €</td></tr>
+                        <tr><td>Turku (Paluu)</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr>
+                            <td colspan="3">Yhteensä</td>
+                            <td>101,85 €</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Init map
+        const map = L.map('map').setView([61.5, 24.5], 6);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Coordinates are approximate center points of the cities/locations
+        const waypoints = [
+            { name: "Turku (Lähtö)", coords: [60.4518, 22.2666] },
+            { name: "Pori", coords: [61.4866, 21.7969] },
+            { name: "Yyteri", coords: [61.5670, 21.5300] },
+            { name: "Vaasa", coords: [63.0951, 21.6165] },
+            { name: "Seinäjoki", coords: [62.7903, 22.8403] },
+            { name: "Tuuri", coords: [62.5991, 23.7297] },
+            { name: "Keuruu", coords: [62.2592, 24.7088] },
+            { name: "Jyväskylä", coords: [62.2415, 25.7209] },
+            { name: "Mikkeli", coords: [61.6886, 27.2721] },
+            { name: "Kouvola", coords: [60.8679, 26.7042] },
+            { name: "Helsinki", coords: [60.1695, 24.9354] },
+            { name: "Espoo", coords: [60.2055, 24.6559] },
+            { name: "Turku (Paluu)", coords: [60.4518, 22.2666] }
+        ];
+
+        const coords = waypoints.map(wp => wp.coords);
+
+        // Draw line
+        const routeLine = L.polyline(coords, {
+            color: '#E74C3C', 
+            weight: 4, 
+            opacity: 0.8,
+            lineJoin: 'round'
+        }).addTo(map);
+
+        // Add markers
+        waypoints.forEach((wp, index) => {
+            let markerLabel = `<strong>${index === 0 || index === waypoints.length-1 ? '' : index + '. '}${wp.name}</strong>`;
+            
+            let circle = L.circleMarker(wp.coords, {
+                radius: 6,
+                fillColor: '#2C3E50',
+                color: '#ffffff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 1
+            }).addTo(map).bindPopup(markerLabel);
+        });
+
+        // Adjust map view to fit route
+        map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
+    </script>
+</body>
+</html>
