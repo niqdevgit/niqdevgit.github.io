@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disarray 30.10.26-1.11.26</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        .content {
+            padding: 20px;
+            background: #fff;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <a href="../index.html">Back to all blogs view</a>
+
+    <div class="container">
+        <div class="content">
+            <h2>Disarray 30.10.26-1.11.26</h2>
+
+            <p>Kaikki puheet olivat oikein mielenkiintoisia, mutta jaan tässä otteita vain osasta esityksistä.<br>
+            Pahoittelut myös finglishin käytöstä, kaikille termeille en keksinyt fiksua suomennosta.</p>
+
+            <h3 id="pre-cruise">Pre-Cruise</h3>
+            <p>Ennen varsinaista risteilyä oli ennakkotapahtuma, jossa oli kolme esitystä. Lisäksi oli väliaika ja 🍕-tarjoilu.</p>
+
+            <h4>1. Disrupting reusable exploits with ASLR</h4>
+            <p>Ennakkotapahtuman ensimmäinen esitys oli hieman liian tekninen minulle. Siinä kuitenkin nousi mielenkiintoisia pointteja.<br>
+            Esimerkiksi se että vaikka käyttäisit mitä ohjelmointikieltä, kuten Pythonia, käytät kuitenkin C:tä koska siellä on jaettuja kirjastoja kuten lib C. Uusia termejä minulle oli ROP ja JIT-ROP. Ja lisäksi tuli muistutus siitä ettei C:n kanssa tulisi ikinä käyttää <code>gets()</code>-funktiota.</p>
+            <p>Ymmärrykseni mukaan siis ASLR randomisoi muistiosoitteita, josta ohjelma lukee. Uudelleenkäytettävyys vaatii arvattavuutta. Randomisointi rikkoo optimoinnin. Kirjoitin myös itselleni muistiin, että jos joskus esitän yleisölle, joka ei välttämättä tiedä kaikkia lyhenteitä, ne olisi hyvä avata.</p>
+
+            <h4>2. Decrypt your speech</h4>
+            <p>Toisessa esityksessä tuli huomioita siitä miten ei-teknisille osapuolille olisi hyvä kommunikoida. Sen voi tehdä ainakin näillä kolmella keinolla: Kerro vain olennainen osuus, käytä esimerkkejä ja malleja sekä käytä samaa kieltä. Puheen kommenteissa myös nostettiin encoding vs encrypting ja noilla termeillä vissiin on ero ;)<br>
+            Miettisin myös onko itsensä esittely esityksen alkuun huonoa operational security:ä?</p>
+
+            <h3 id="cruise">Cruise</h3>
+
+            <h4>1. I want to speak to the manager</h4>
+            <p>Tech-työmarkkinat voi vaihdella, joten siksi on tärkeää osata kommunikoida johtoportaalle. Pitää olla hyvässä maineessa kun YT-neuvottelut alkavat. Mitä HIGH-riski tarkoittaa toimitusjohtajalle? Kuinka moni firmassa oikeasti on lukenut tietoturvapolitiikan? Onko ihmiset heikoin lenkki? Ei välttämättä, ihmiset voi toimia sensoreina ja niille puhumalla saa tietää, miksi klikkaus phishing-viestiin tapahtui. Oikein toimimisesta pitää tehdä helppoa. Rikkinäinen puhelin Secu -&gt; It -&gt; CIO -&gt; CEO. "Onko selvä" on huono kysymys.</p>
+
+            <h4>2. Weakest link in cybersecurity</h4>
+            <p>Huijauksissa ei ajatella optimaalisesti, siksi käyttäjän syyttäminen ei ole optimaalista. Ihmisiä ei voi kouluttaa, niin ettei ne enää ole ihmisiä. "dark design" - moni ei edes tunne käsitettä. Peleissä, somessa verkkokaupoissa yms. Ihmiset ei tee korjauksia, koska ongelma on kaukana, esim prosesseissa tai systeemeissä. Esimerkiksi: AI-muisti on oletuksena päällä. Helposti syyttää promptia eli käyttäjää vaikka vika voi olla myrkyllisessä kielimallissa. censorship by proxy, mihin ai vastaa. uus termi mulle</p>
+
+            <h4>3. Prompt injection: välttämätön, mutta vaikutus rajattavissa.</h4>
+            <p>Yleinen llm-hierarkia, ylin tärkein:</p>
+            <ul>
+                <li>System prompt</li>
+                <li>developer prompt</li>
+                <li>rag</li>
+                <li>user prompt</li>
+            </ul>
+            <p>Käyttäjän syöte siis on vähimmäisin. Log-filuissa voi olla EXFIL, html <code>&lt;img src="eioo.jpg" onerror=...&gt;</code><br>
+            EXFIL = Dataa viedään ulos järjestelmästä.<br>
+            Vektorihyökkäys, ihmisille "sama asia" mutta kielimallille 180 asteen ero.<br>
+            json + boolean logic + simon says<br>
+            CSP -&gt; ei villikortteja domaineissa *.example.com, eli rajaa LLM pääsy<br>
+            self XSS md-injectio, jos llm renderöi md-kuvia.<br>
+            <code>print("injectio tähän")</code><br>
+            ROP = return oriented programming<br>
+            10628 connectoria claudessa -&gt; valtava injektiopinta-ala<br>
+            fragmented-hyökkäys ei jää regexiin. tiedosto 1 sanoo et lue tiedosto 2 ja siellä prompt-injectio<br>
+            <code>&lt;s&gt;prompt-injectio tähän&lt;/s&gt;</code> ja uus prompt tähän.<br>
+            enkoodaa merkit, sama kun cachen hämäys<br>
+            voit jakaa google drive -dokkarin, josta joku voi hakee tietoo, epäsuora injectio<br>
+            system prompt on julkista tietoa<br>
+            unhinged gemini from Hugging Face<br>
+            sut plokataa jos liikaa meemuttaa<br>
+            try harder, start smaller<br>
+            obfuscation, aiheuttaa kans flägäyksen</p>
+
+            <h4>4. Local LLM for tietoturva</h4>
+            <p>Enempi RAM:ia niin sen parempi, paikalliset mallit pyörii 16gb - 128gb ja 1-4 näytönohjaimella.<br>
+            Paikallisella sallivalla mallilla vastuu siirtyy mallilta ympäristöön. Pitää olla kunnossa: logaus, mihin LLM pääsee, harness.<br>
+            "älä hakkeroi muita toimijoita" ei ole esto, prompt ei ole security boundary<br>
+            sandboxaus, least privilege -ajattelu, ja nämä pitäis olla oikeastaan jo ihmisten kanssa.<br>
+            Sillä juniori voi tiputtaa tuotantotietokannan.<br>
+            Secrettien hallinta, policy compliance, kenen vastuulla mikäkin.<br>
+            Trust is an engineering decision<br>
+            OpenAI daybreak suht helppo saada pääsy<br>
+            Voi käyttää multi model -setuppia, jos joku yksittäinen malli ei suostu secu-testaamaan<br>
+            Shadow AI:hin samat puolustukset kuin shadow IT</p>
+
+            <h4>5. Privilege escalation</h4>
+            <p>Max sessioaika hakkeroinnissa on noin 8 min. Pitää olla huomaamaton.<br>
+            Yleinen hyökkäyksen polku:<br>
+            initial access, identity discovery, privilege mapping, credential dumping, privilege escalation, backdoor, lateral movement, full access.<br>
+            Internetin pointti on klikata asioita, hyvä klikkaus tai paha klikkaus? Rajoita vahinkoa<br>
+            Privilegeä löytyy:<br>
+            domain admin, local root, service account, emergency accounts, access to privilege data (esim lääkärit), llm-agentit<br>
+            Älä anna käyttäjien valita salasanoja palveluihin, ainoo jonka saa valita on password managerin vahva pääsalasana<br>
+            Heti kun hakkeri käyttää työkaluja, se pitää meteliä. esim. linpeas-linux<br>
+            Hakkerit voi luoda sun ympäristön paikallisesti ja tutkia sitä sitten rauhassa.<br>
+            Tapahtumalogeissa näkyy tuore aloitusaika, siksi et voi poistaa logeja logien poistamisesta</p>
+            <p>Miten tulla hakkeriksi</p>
+            <ol>
+                <li>hanki mentori</li>
+                <li>do what you love doing</li>
+                <li>be kind</li>
+            </ol>
+
+            <hr>
+
+            <h3>Lightning talks</h3>
+            <p>Tapahtuman lopuksi jokaisella osallistujalla oli mahdollisuus esittää pikaesitys. Tässä omat suosikkinostot:</p>
+            <ul>
+                <li>Data on alasti kun se työskentelee: Confidential computing. isolate, attest, release</li>
+                <li>XML bomb v2: GraphQL-fragmenteillä saa tehtyä samanlaisen hyökkäyksen kuin xml-pommi. Samaa ulostetta, uusi teknologia</li>
+                <li>CISO (chief information security officer) voi olla monen tarkoituksen takia: shown takia tai yhen miehen IT-osasto.</li>
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>
